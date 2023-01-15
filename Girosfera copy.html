@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Esfera Armilar 3D</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/108/three.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+        // Crear escena
+        var scene = new THREE.Scene();
+  
+        // Crear cámara
+        var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 1.8, 12);
+        scene.add(camera);
+  
+        // Crear renderizador
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+  
+        // Crear esfera central
+        var sphereGeometry = new THREE.SphereGeometry(2, 32, 32);
+        var texture = new THREE.TextureLoader().load("metal.jpg");
+        var sphereMaterial = new THREE.MeshPhongMaterial({map: texture}, {color: "yellow"});
+        var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        scene.add(sphere);
+  
+        // Crear anillos
+        var ringCount = 3;
+        var ringMaterial = new THREE.MeshPhongMaterial({map: texture});
+        var rings = []
+        for (var i = 0; i < ringCount; i++) {
+          var ringRadius = 5 + (i * 0.5);
+          var ringGeometry = new THREE.TorusGeometry(ringRadius, 0.2, 16, 100);
+          var ring = new THREE.Mesh(ringGeometry, ringMaterial);
+          ring.rotation.x = Math.PI / 2; // Rotar para colocar en el eje Y
+          switch (i) {
+              case 0:
+                  ring.rotation.x = Math.PI / 2;
+                  break;
+              case 1:
+                  ring.rotation.y = Math.PI / 2;
+                  break;
+              case 2:
+                  ring.rotation.z = Math.PI / 2;
+                  break;
+          }
+          scene.add(ring);
+          rings.push(ring)
+        }
+  
+        // Crear luz
+        var light = new THREE.DirectionalLight(0xffffff);
+        light.position.set(1, 1, 1);
+        scene.add(light);
+  
+        // Función de animación
+        function animate() {
+          requestAnimationFrame(animate);
+          sphere.rotation.y += 0.01;
+          for (var i = 0; i < ringCount; i++) {
+              switch (i) {
+                  case 0:
+                      rings[i].rotation.x += 0.01;
+                      break;
+                  case 1:
+                      rings[i].rotation.y += 0.01;
+                      break;
+                  case 2:
+                      rings[i].rotation.z += 0.01;
+                      break;
+              }
+          }
+          renderer.render(scene, camera);
+        }
+        animate();
+  
+        // Evento de redimensionado de ventana
+        window.addEventListener("resize", function() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+</script>
+  </body>
+</html>
